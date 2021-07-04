@@ -1,4 +1,4 @@
-name := "project"
+name := "learn_algrithm"
 
 version := "0.1"
 
