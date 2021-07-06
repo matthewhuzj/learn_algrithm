@@ -4,6 +4,17 @@ import scala.reflect.ClassTag
 import scala.util.control.Breaks._
 
 object Sort{
+  def insertSort2 [T](lists:List[T],f:(T,T)=>Boolean):List[T] ={
+    def insert(x:T,lists:List[T]) :List[T] = lists match {
+      case Nil => List(x)
+      case y :: ys => if(f(x,y)) x::lists else y::insert(x,ys)
+    }
+    def sort(lists:List[T]) :List[T] = lists match {
+      case Nil => Nil
+      case x::xs => insert(x,sort(xs))
+    }
+    sort(lists)
+  }
   def insertSort [T <% Ordered[T]](lists:List[T])(implicit ev: ClassTag[T]):List[T] ={
     if (lists.size < 2) lists
     else {
@@ -66,6 +77,7 @@ object Sort{
 
 object testSort extends App {
   common.RunTime.time {println(Sort.insertSort(List(3,2,6,4,7,5,1,0)))}
+  common.RunTime.time {println(Sort.insertSort2(List(3,2,6,4,7,5,1,0),(x:Int,y:Int)=>x<y))}
   common.RunTime.time {println(Sort.mergeSort(List(3,2,6,4,7,5,1,0)))}
   common.RunTime.time {println(Sort.binarySearch(Array(0,2,12,33,89,123,200,201,202,399),5))}
   common.RunTime.time {println(Sort.binarySearch(Array(0,2,12,33,89,123,200,201,202,399),399))}

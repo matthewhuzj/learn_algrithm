@@ -1,5 +1,7 @@
 package patmat
 
+import algorithm.Sort.insertSort
+
 /**
  * A huffman code is represented by a binary tree.
  *
@@ -21,9 +23,15 @@ case class Leaf(char: Char, weight: Int) extends CodeTree
 trait Huffman extends HuffmanInterface {
 
   // Part 1: Basics
-  def weight(tree: CodeTree): Int = ??? // tree match ...
+  def weight(tree: CodeTree): Int = tree match {
+    case Fork(_,_,_,weight) => weight
+    case Leaf(_,weight)   => weight
+  } // tree match ...
 
-  def chars(tree: CodeTree): List[Char] = ??? // tree match ...
+  def chars(tree: CodeTree): List[Char] = tree match {
+    case Fork(_,_,chars,_) => chars
+    case Leaf(char,_)   => List(char)
+  }
 
   def makeCodeTree(left: CodeTree, right: CodeTree) =
     Fork(left, right, chars(left) ::: chars(right), weight(left) + weight(right))
@@ -64,7 +72,17 @@ trait Huffman extends HuffmanInterface {
    *       println("integer is  : "+ theInt)
    *   }
    */
-  def times(chars: List[Char]): List[(Char, Int)] = ???
+  def times(chars: List[Char]): List[(Char, Int)] = {
+    def update(char:Char,acc:List[(Char,Int)]):List[(Char,Int)] = acc match {
+      case Nil =>List((char,1))
+      case (k,v)::xs => if( k == char) (k,v+1)::xs else (k,v)::update(char,xs)
+    }
+    def Acc(chars:List[Char],acc:List[(Char,Int)]):List[(Char,Int)] = chars match {
+      case Nil => acc
+      case c::xs => Acc(xs,update(c,acc))
+    }
+    Acc(chars,Nil)
+  }
 
   /**
    * Returns a list of `Leaf` nodes for a given frequency table `freqs`.
@@ -73,12 +91,16 @@ trait Huffman extends HuffmanInterface {
    * head of the list should have the smallest weight), where the weight
    * of a leaf is the frequency of the character.
    */
-  def makeOrderedLeafList(freqs: List[(Char, Int)]): List[Leaf] = ???
+  def makeOrderedLeafList(freqs: List[(Char, Int)]): List[Leaf] = {
+    import algorithm.Sort.insertSort2
+    val leafs:List[Leaf] = freqs.map(x => Leaf(x._1,x._2))
+    insertSort2(leafs,(x:Leaf,y:Leaf) => weight(x) < weight(y))
+  }
 
   /**
    * Checks whether the list `trees` contains only one single code tree.
    */
-  def singleton(trees: List[CodeTree]): Boolean = ???
+  def singleton(trees: List[CodeTree]): Boolean = trees.size == 1
 
   /**
    * The parameter `trees` of this function is a list of code trees ordered
